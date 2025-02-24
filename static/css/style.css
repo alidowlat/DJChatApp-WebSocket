@@ -1,0 +1,239 @@
+body {
+    margin-top: 20px;
+    font-family: "Ubuntu", serif;
+    font-weight: 400;
+    font-style: normal;
+    background: linear-gradient(90deg, #8bb9e3, #cbdff1, #8bb9e3);
+}
+
+.card {
+    background: linear-gradient(-180deg, #6f91b0, #216db0, #155c9c);
+    transition: 0.5s;
+    border: 0;
+    margin-bottom: 20px;
+    border-radius: 0.55rem;
+    position: relative;
+    width: 100%;
+    box-shadow: 0 4px 12px 0 rgb(0 0 0 / 50%);
+}
+
+.card-2 {
+    background: linear-gradient(-180deg, #6f91b0, #216db0, #155c9c);
+    transition: 0.5s;
+    border: 0;
+    border-radius: 0.55rem;
+    position: relative;
+    width: 50%;
+    box-shadow: 0 4px 12px 0 rgb(0 0 0 / 50%);
+    margin: auto;
+}
+
+.chat-app .people-list {
+    width: 280px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    padding: 20px;
+    z-index: 7;
+}
+
+.chat-app .chat {
+    margin-left: 280px;
+    border-left: 2px solid #144777;
+    height: 595px;
+}
+
+.index {
+    position: relative;
+    height: 575px;
+    max-height: 900px;
+    width: 100%;
+}
+
+.people-list {
+    transition: 0.5s;
+}
+
+.people-list .chat-list li {
+    padding: 10px 15px;
+    list-style: none;
+    border-radius: 3px;
+}
+
+.people-list .chat-list li:hover {
+    background: #efefef;
+    cursor: pointer;
+}
+
+.people-list .chat-list li.active {
+    background: #113b62;
+    border: 1px solid #04192d;
+}
+
+.people-list .chat-list li .name {
+    font-size: 15px;
+    color: white;
+    text-decoration: none;
+}
+
+.people-list .about {
+    float: left;
+    padding-left: 8px;
+}
+
+.flex {
+    display: inline-flex;
+}
+
+.people-list .status {
+    color: #afd5ff;
+    font-size: 13px;
+}
+
+.chat .chat-header {
+    padding: 15px 20px;
+    border-bottom: 2px solid #144777;
+}
+
+.chat .chat-header img {
+    float: left;
+    border-radius: 40px;
+    width: 40px;
+}
+
+.chat .chat-header .chat-about {
+    float: left;
+    padding-left: 10px;
+    color: white
+}
+
+.chat .chat-history {
+    padding: 18px;
+    border-bottom: 2px solid #144777;
+    height: 420px;
+    overflow-y: auto;
+}
+
+.chat .chat-history ul {
+    padding: 0;
+    list-style: none;
+}
+
+.chat .chat-history ul li {
+    margin-bottom: 8px;
+    overflow: auto;
+}
+
+.chat .chat-history .message-data {
+    margin-bottom: 15px;
+}
+
+.chat .chat-history .message-data-time {
+    color: rgba(2, 13, 24, 0.53);
+    font-size: 12px;
+    padding-left: 20px;
+    float: right;
+}
+
+.chat .chat-history .message {
+    color: #000000;
+    padding: 5px 18px;
+    line-height: 28px;
+    font-size: 16px;
+    border-radius: 18px;
+    display: inline-block;
+    position: relative;
+    max-width: 70%;
+}
+
+.chat .chat-history .my-message {
+    background: #e1eeff;
+    float: right;
+}
+
+.chat .chat-history .other-message {
+    background: #acd2ff;
+    float: left;
+}
+
+.chat-message {
+    padding: 19px;
+    position: absolute;
+    bottom: 0;
+    width: 74.5%;
+}
+
+::-webkit-scrollbar {
+    width: 12px;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #063867;
+    box-shadow: inset 2px 2px 5px 0 rgba(255, 255, 255, 0.5);
+    border-radius: 50px;
+    cursor: pointer;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.date-separator {
+    text-align: center;
+    font-size: 14px;
+    color: #505050;
+    margin: 15px auto;
+    font-weight: bold;
+    background: #f5f5f5;
+    opacity: 60%;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 5px 15px;
+    width: fit-content;
+    min-width: 120px;
+    max-width: 200px;
+}
+
+.fixed {
+    height: 595px;
+    display: flex;
+    overflow: hidden;
+}
+
+.justify-center {
+    position: fixed;
+    inset: 10px;
+    height: 22rem;
+    margin: auto;
+}
+
+.index-pr {
+    color: white;
+    text-align: center;
+    font-weight: bold;
+    font-size: 13px;
+}
+
+#room-name-input {
+    text-transform: uppercase;
+}
+
+.sender-name {
+    font-weight: normal;
+    color: white;
+    margin-left: 17px;
+}
+
+.ml-1 {
+    margin-left: 1px;
+}
+
+.white {
+    color: white;
+}
+
+.member {
+    margin-left: 5px;
+}

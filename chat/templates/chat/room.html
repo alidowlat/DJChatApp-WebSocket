@@ -1,0 +1,217 @@
+{% extends 'shared/_layout.html' %}
+{% load static %}
+
+{% block title %}
+    {{ room_name }}
+{% endblock %}
+
+{% block content %}
+    <div class="container section">
+        <div class="row clearfix">
+            <div class="col-lg-12 fixed">
+                <div class="card chat-app">
+                    <div id="plist" class="people-list">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <button id="room-name-submit" class="input-group-text"><i class="fa fa-search"></i>
+                                </button>
+                            </div>
+                            <input id="room-name-input" type="text" class="form-control" placeholder="chat room"/>
+                        </div>
+                        {% for group in groups %}
+                            <ul class="list-unstyled chat-list mt-2 mb-0">
+                                <li class="clearfix active">
+                                    <div class="about">
+                                        <i class="fa fa-group white"></i>
+                                        <a href="{% url 'room_page' group.room_name %}"
+                                           class="name ml-1">{{ group.room_name }}</a>
+                                        <div class="status flex-container">{{ group.members.all|join:", " }}</div>
+                                    </div>
+                                </li>
+                            </ul>
+                        {% endfor %}
+                    </div>
+                    <div class="chat">
+                        <div class="chat-header clearfix">
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <div class="chat-about">
+                                        <h6 class="m-b-0">{{ room_name }}</h6>
+                                        <small class="status flex-container">{{ members_list|length }} Members</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chat-history">
+                            <ul id="chat-log" class="m-b-0"></ul>
+                        </div>
+                        <div class="chat-message clearfix">
+                            <div class="input-group mb-0">
+                                <input onsubmit="return validateSearch()" id="chat-message-input" type="text"
+                                       class="form-control" placeholder="Message" required>
+                                <div class="input-group-append">
+                                    <button id="chat-message-submit" class="btn btn-primary">
+                                        <i class="fa fa-paper-plane"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {{ room_name|json_script:"room-name" }}
+    <script src="{% static 'js/reconnecting-websocket.js' %}"></script>
+    <script>
+        var username = {{ username }};
+        let lastDate = null;
+        const roomName = "{{ room_name }}";
+        const chatSocket = new ReconnectingWebSocket('ws://' + window.location.host + '/ws/chat/' + roomName + '/');
+
+        chatSocket.onopen = function () {
+            chatSocket.send(JSON.stringify({'command': 'fetch_message', 'room_name': roomName}));
+        }
+
+        const chatSocket2 = new WebSocket(
+            'ws://'
+            + window.location.host
+            + '/ws/chat/'
+            + 'listener'
+            + '/'
+        );
+
+        chatSocket2.onmessage = function (e) {
+            var data = JSON.parse(e.data);
+            for (let i = data['members_list'].length - 1; i >= 0; i--) {
+                if (data['members_list'][i] === username) {
+                    if (data['__str__'] !== username) {
+                        if (data['room_name'] !== roomName) {
+                            if (!("Notification" in window)) {
+                                alert("This browser does not support desktop notification.")
+                            } else if (Notification.permission === "granted") {
+                                new Notification(`${data['__str__']}: ${data['message']}`);
+                            } else if (Notification.permission !== "denied") {
+                                Notification.requestPermission().then(function (permission) {
+                                    if (permission === "granted") {
+                                        new Notification(`${data['__str__']}: ${data['message']}`);
+                                    }
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+        };
+
+        chatSocket.onmessage = function (e) {
+            var data = JSON.parse(e.data);
+            if (data['command'] === 'fetch_message') {
+                data['message'].forEach(m => createMessage(m));
+            } else {
+                createMessage(data);
+            }
+            document.querySelector('.chat-history').scrollTop = document.querySelector('.chat-history').scrollHeight;
+        }
+
+        chatSocket.onclose = function (e) {
+            console.error('Chat socket closed unexpectedly');
+        }
+
+        document.querySelector('#chat-message-input').onkeyup = function (e) {
+            if (e.keyCode === 13) document.querySelector('#chat-message-submit').click();
+        }
+
+        document.querySelector('#chat-message-submit').onclick = function () {
+            const message = document.querySelector('#chat-message-input').value;
+            chatSocket.send(JSON.stringify({
+                'message': message,
+                'command': 'new_message',
+                'username': username,
+                'room_name': roomName
+            }));
+            document.querySelector('#chat-message-input').value = '';
+        }
+
+        var lastSender = null;
+
+        function createMessage(data) {
+            var chatLog = document.querySelector('#chat-log');
+            var messageDate = new Date(data['date']).toLocaleDateString();
+
+            if (messageDate !== lastDate) {
+                let dateSeparator = document.createElement('div');
+                dateSeparator.className = 'date-separator';
+                dateSeparator.textContent = messageDate;
+                chatLog.appendChild(dateSeparator);
+                lastDate = messageDate;
+            }
+
+            var li = document.createElement('li');
+            if (data['__str__'] !== username && data['__str__'] !== lastSender) {
+                var senderName = document.createElement('div');
+                var senderIcon = document.createElement('i');
+                senderIcon.className = 'fa fa-user member';
+                senderName.className = 'sender-name';
+                senderName.textContent = data['__str__'];
+                li.appendChild(senderName);
+                senderName.appendChild(senderIcon);
+            }
+
+            var time = document.createElement('span');
+            time.className = 'message-data-time';
+            time.textContent = new Date(data['date']).toLocaleTimeString();
+
+            var msg = document.createElement('div');
+            msg.className = data['__str__'] === username ? 'message my-message' : 'message other-message';
+            msg.textContent = data.message;
+            msg.appendChild(time);
+            li.appendChild(msg);
+            chatLog.appendChild(li);
+
+            lastSender = data['__str__'];
+        }
+
+        document.querySelector("#room-name-submit").onclick = function () {
+            let roomName = document.querySelector("#room-name-input").value.trim().toUpperCase();
+            if (roomName === "") {
+                Swal.fire("Error!", "Enter the chat room name", "error");
+                return;
+            }
+
+            fetch(`/chat/check/check-room/?room_name=${roomName}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.exists) {
+                        Swal.fire({
+                            title: "Chat room is exists",
+                            text: `Enter to ${roomName}?`,
+                            icon: "question",
+                            showCancelButton: true,
+                            confirmButtonText: "Yes",
+                            cancelButtonText: "No"
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = `/chat/${roomName}/`;
+                            }
+                        });
+                    } else {
+                        Swal.fire({
+                            title: "Chat room doesn't exists",
+                            text: `Create and enter to ${roomName}?`,
+                            icon: "warning",
+                            showCancelButton: true,
+                            confirmButtonText: "Yes, Create",
+                            cancelButtonText: "No"
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = `/chat/${roomName}/`;
+                            }
+                        });
+                    }
+                })
+                .catch(error => console.error("Error:", error));
+        };
+
+    </script>
+{% endblock %}
